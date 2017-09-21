@@ -45,15 +45,15 @@ var (
 )
 
 func parseArgs() {
-	flag.StringVar(&host, "h", defaultHost, "repert target hostname")
-	flag.StringVar(&port, "p", defaultPort, "repert target port number")
+	flag.StringVar(&host, "h", defaultHost, "Repert target hostname")
+	flag.StringVar(&port, "p", defaultPort, "Repert target port number")
 	flag.StringVar(&file, "f", "", "AWS ALB log file path")
-	flag.IntVar(&samplecount, "s", defaultSampleCount, "repert target port number")
-	flag.IntVar(&concurrency, "c", defaultConcurrency, "requests concurrency")
-	flag.IntVar(&afterSeconds, "after-seconds", defaultAfterSeconds, "after seconds")
+	flag.IntVar(&samplecount, "s", defaultSampleCount, "A number of request samples at repeat plan")
+	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
+	flag.IntVar(&afterSeconds, "after-seconds", defaultAfterSeconds, "Repeat start after seconds")
 	flag.BoolVar(&isDryrun, "dryrun", false, "dryrun")
-	flag.BoolVar(&isHelp, "help", false, "help message")
-	flag.BoolVar(&isVersion, "v", false, "version")
+	flag.BoolVar(&isHelp, "help", false, "Show help message")
+	flag.BoolVar(&isVersion, "v", false, "Show version info")
 	flag.Parse()
 	if len(os.Args) == 1 || isHelp {
 		flag.Usage()
