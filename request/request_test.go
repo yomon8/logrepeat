@@ -4,6 +4,8 @@ import (
 	"sort"
 	"testing"
 	"time"
+
+	"github.com/yomon8/logrepeat/parser"
 )
 
 var testtime = time.Now()
@@ -22,12 +24,14 @@ var cases = []struct {
 func TestPrintRequest(t *testing.T) {
 	var requests Requests = make([]*Request, 0)
 	for _, c := range cases {
+		entry := new(parser.Entry)
+		entry.Method = c.method
+		entry.DateTime = time.Now()
+		entry.Path = c.path
 		r := NewRequest(
-			c.method,
 			c.host,
 			c.port,
-			c.path,
-			c.reqtime)
+			entry)
 		requests = append(requests, r)
 	}
 

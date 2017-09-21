@@ -4,7 +4,7 @@ VERSION  := $(shell git describe --tags)
 all: build
 
 test: deps build
-	./test_$(BIN).sh
+	go test ./...
 
 deps:
 	go get -d -v -t ./...
