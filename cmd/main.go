@@ -14,8 +14,19 @@ import (
 	"github.com/yomon8/logrepeat/request"
 )
 
-// vars and constans for parse args
+const (
+	version = "0"
+
+	// default values
+	defaultSampleCount  = 5
+	defaultHost         = "localhost"
+	defaultPort         = "80"
+	defaultConcurrency  = 10
+	defaultAfterSeconds = 5
+)
+
 var (
+	// args
 	host         string
 	port         string
 	file         string
@@ -25,16 +36,12 @@ var (
 	isDryrun     bool
 	isHelp       bool
 	isVersion    bool
-)
 
-// default values of parameters
-const (
-	version             = "0"
-	defaultSampleCount  = 5
-	defaultHost         = "localhost"
-	defaultPort         = "80"
-	defaultConcurrency  = 10
-	defaultAfterSeconds = 5
+	readreqs     request.Requests
+	ignoredLine  int
+	parseErrLine int
+	newest       *request.Request
+	oldest       *request.Request
 )
 
 func parseArgs() {
@@ -57,14 +64,6 @@ func parseArgs() {
 		os.Exit(0)
 	}
 }
-
-var (
-	readreqs     request.Requests
-	ignoredLine  int
-	parseErrLine int
-	newest       *request.Request
-	oldest       *request.Request
-)
 
 func main() {
 	parseArgs()
@@ -103,9 +102,8 @@ func main() {
 			break
 		}
 	}
-
 	if len(readreqs) == 0 {
-		log.Fatalf("Valid entry not found")
+		log.Fatalf("no valid entries found")
 	}
 
 	// update time of requests according to current time
@@ -124,7 +122,7 @@ func main() {
 		fmt.Print(color.MagentaString("Enter [start] and press Enter key>"))
 		fmt.Scanf("%s", &key)
 		if key == "start" {
-			fmt.Println("Start")
+			fmt.Println("Start at:", oldest.StringPlanTime())
 			break
 		}
 	}

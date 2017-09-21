@@ -28,6 +28,8 @@ type Repeater struct {
 	wg       *sync.WaitGroup
 	buffer   chan *request.Request
 	quit     chan bool
+	count    int
+	total    int
 }
 
 func NewRepearter(requests *request.Requests) *Repeater {
@@ -36,6 +38,7 @@ func NewRepearter(requests *request.Requests) *Repeater {
 	r.wg = new(sync.WaitGroup)
 	r.buffer = make(chan *request.Request, REQUEST_BUFFER_SIZE)
 	r.quit = make(chan bool)
+	r.total = requests.Len()
 	return r
 }
 
@@ -52,11 +55,14 @@ func (r *Repeater) collectStats() {
 		default:
 			statsTime = time.Now().Unix()
 			if statsTime-laststatsTime > LOG_INTERVAL_SEC && len(results) > 0 {
+				r.count += len(results)
+				progress := float32(r.count) / float32(r.total) * 100
 				sort.Sort(results)
-				printer.Get().Spool <- fmt.Sprintf("%s - %s  %s",
+				printer.Get().Spool <- fmt.Sprintf("%s - %s  %s  (%.1f%%)",
 					results[0].requestTimeString(),
 					results[len(results)-1].requestTimeString(),
-					results.GetStatsString())
+					results.GetStatsString(),
+					progress)
 
 				results = make([]*Result, 0)
 				laststatsTime = statsTime
