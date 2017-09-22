@@ -3,15 +3,15 @@ read access log then repeat requests to another target host:port
 
 ## Usage
 
-- Fiast download your AWS ALB(Application Load Balancer) log from S3.
+- Download your AWS ALB(Application Load Balancer) log from S3.
 
-- exec logrepeat with your alb log file.
+- Run logrepeat with your alb log file.
 
 ```
 $ logrepeat -h newtarget -p 8080 -f youralblogfile.log
 ```
 
-- you can check repeat plan 
+- You will see and check repeat plan 
 
 ```
 --- Requests Source ---
@@ -33,7 +33,7 @@ Repeat Samples	:
 ...and more
 ```
 
-- if ok, enter "start" at prompt and press Enter. then repeat will start.
+- If ok, enter "start" at prompt and press Enter. then repeat requests will start.
 
 ```
 Enter [start] and press Enter key>start
