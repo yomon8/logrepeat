@@ -38,11 +38,13 @@ Repeat Samples	:
 ```
 Enter [start] and press Enter key>start
 Start at: 2017-09-21 22:39:49JST
-2017-09-21T22:39:49JST - 2017-09-21T22:39:49JST  /2xx:   0 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   1  (0.0%)
-2017-09-21T22:39:50JST - 2017-09-21T22:39:52JST  /2xx:   0 /3xx:   0 /4xx:   0 /5xx:   0 /Oth: 116  (0.1%)
-2017-09-21T22:39:53JST - 2017-09-21T22:39:56JST  /2xx:   0 /3xx:   0 /4xx:   0 /5xx:   0 /Oth: 129  (0.3%)
-2017-09-21T22:39:57JST - 2017-09-21T22:40:00JST  /2xx:   0 /3xx:   0 /4xx:   0 /5xx:   0 /Oth: 131  (0.4%)
-2017-09-21T22:40:01JST - 2017-09-21T22:40:04JST  /2xx:   0 /3xx:   0 /4xx:   0 /5xx:   0 /Oth: 127  (0.5%)
+2017-09-22T23:11:07JST - 2017-09-22T23:11:07JST  /2xx:   1 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   0 /Err:   0 Avg 113 msec  (0.0%Done)
+2017-09-22T23:11:09JST - 2017-09-22T23:11:10JST  /2xx:  43 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   0 /Err:   0 Avg 202 msec  (1.3%Done)
+2017-09-22T23:11:10JST - 2017-09-22T23:11:14JST  /2xx: 127 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   0 /Err:   0 Avg 235 msec  (4.9%Done)
+2017-09-22T23:11:15JST - 2017-09-22T23:11:18JST  /2xx:  99 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   0 /Err:   0 Avg 216 msec  (7.8%Done)
+2017-09-22T23:11:18JST - 2017-09-22T23:11:22JST  /2xx: 113 /3xx:   0 /4xx:   0 /5xx:   0 /Oth:   0 /Err:   0 Avg 210 msec  (11.0%Done)
+...
+...
 ```
 
 

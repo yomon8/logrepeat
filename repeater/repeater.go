@@ -2,7 +2,6 @@ package reperter
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sort"
 	"sync"
@@ -58,7 +57,7 @@ func (r *Repeater) collectStats() {
 				r.count += len(results)
 				progress := float32(r.count) / float32(r.total) * 100
 				sort.Sort(results)
-				printer.Get().Spool <- fmt.Sprintf("%s - %s  %s  (%.1f%%)",
+				printer.Get().Spool <- fmt.Sprintf("%s - %s  %s  (%.1f%%Done)",
 					results[0].requestTimeString(),
 					results[len(results)-1].requestTimeString(),
 					results.GetStatsString(),
@@ -80,28 +79,34 @@ func (r *Repeater) request(isDryrun bool) {
 			printer.Get().Spool <- fmt.Sprint("worker stopped ...")
 			break
 		}
+		var code int
+		var responseTime time.Duration
 		for {
 			repeatTime := time.Now()
-			var code int
-			if isDryrun {
-				code = 999
-			} else {
-				client := &http.Client{Timeout: time.Duration(20) * time.Second}
-				req, err := http.NewRequest("GET", req.Url, nil)
-				if err != nil {
-					log.Println("request error:", err)
-				}
-				if res, err := client.Do(req); err != nil {
-					log.Println("reqest do error:", err)
-				} else {
-					code = res.StatusCode
-				}
-			}
-			if repeatTime.Sub(req.RepeatTime) >= 0 {
-				resultBuffer <- newResult(repeatTime, code)
-				break
-			} else {
+			if repeatTime.Sub(req.RepeatTime) <= 0 {
 				time.Sleep(10 * time.Microsecond)
+				continue
+			} else {
+				if isDryrun {
+					code = 999
+					responseTime = time.Duration(0)
+				} else {
+					client := &http.Client{Timeout: time.Duration(20) * time.Second}
+					httpreq, err := http.NewRequest("GET", req.Url, nil)
+					if err != nil {
+						code = 1000
+						responseTime = time.Duration(0)
+					}
+					start := time.Now()
+					if res, err := client.Do(httpreq); err != nil {
+						code = 1001
+					} else {
+						code = res.StatusCode
+					}
+					responseTime = time.Now().Sub(start)
+				}
+				resultBuffer <- newResult(repeatTime, code, responseTime)
+				break
 			}
 		}
 	}

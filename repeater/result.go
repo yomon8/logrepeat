@@ -10,7 +10,7 @@ import (
 type Result struct {
 	ReturnCode   int
 	RequestTime  time.Time
-	ResponseTime time.Time
+	ResponseTime time.Duration
 }
 
 func (r *Result) requestTimeString() string {
@@ -32,9 +32,10 @@ func (rs Results) GetResultCount() int {
 
 func (rs Results) GetStatsString() string {
 	var (
-		status2XX, status3XX, status4XX, status5XX, other int
+		status2XX, status3XX, status4XX, status5XX, other, errorStatus int
 	)
 
+	var totalResponseTime time.Duration
 	for _, r := range rs {
 		switch {
 		case 200 <= r.ReturnCode && r.ReturnCode < 300:
@@ -45,18 +46,24 @@ func (rs Results) GetStatsString() string {
 			status4XX++
 		case 500 <= r.ReturnCode && r.ReturnCode < 600:
 			status5XX++
+		case 1000 <= r.ReturnCode:
+			errorStatus++
 		default:
 			other++
 		}
+		totalResponseTime += r.ResponseTime
 	}
+	avgResponseTime := totalResponseTime / time.Duration(rs.Len()) / time.Millisecond
 
 	return fmt.Sprintf(
-		"/%s /3xx:%4d /%s /%s /%s",
+		"/%s /3xx:%4d /%s /%s /%s /%s /Avg %d msec",
 		color.GreenString("2xx:%4d", status2XX),
 		status3XX,
 		color.YellowString("4xx:%4d", status4XX),
 		color.RedString("5xx:%4d", status5XX),
-		color.MagentaString("Oth:%4d", other))
+		color.MagentaString("Oth:%4d", other),
+		color.HiRedString("Err:%4d", errorStatus),
+		avgResponseTime)
 }
 
 func (rs Results) add(r *Result) Results {
@@ -76,9 +83,10 @@ func (rs Results) Less(i, j int) bool {
 	return rs[i].RequestTime.Before(rs[j].RequestTime)
 }
 
-func newResult(requestTime time.Time, statusCode int) *Result {
+func newResult(requestTime time.Time, statusCode int, responseTime time.Duration) *Result {
 	res := new(Result)
 	res.RequestTime = requestTime
 	res.ReturnCode = statusCode
+	res.ResponseTime = responseTime
 	return res
 }
