@@ -6,20 +6,20 @@ import (
 )
 
 const (
-	SPOOL_SIZE = 1000
+	SpoolSize = 1000
 )
 
-type printer struct {
+type Printer struct {
 	Spool chan string
 	wg    *sync.WaitGroup
 }
 
-var instance *printer
+var instance *Printer
 
-func Get() *printer {
+func Get() *Printer {
 	if instance == nil {
-		instance = new(printer)
-		instance.Spool = make(chan string, SPOOL_SIZE)
+		instance = new(Printer)
+		instance.Spool = make(chan string, SpoolSize)
 		instance.wg = new(sync.WaitGroup)
 	}
 	return instance
@@ -30,7 +30,7 @@ func Close() {
 	close(instance.Spool)
 }
 
-func (p *printer) Run() {
+func (p *Printer) Run() {
 	p.wg.Add(1)
 	for {
 		output, more := <-p.Spool

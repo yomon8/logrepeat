@@ -6,11 +6,15 @@ import (
 	"time"
 )
 
+// AlbLogParser can parse AWS ALB Access Log
 type AlbLogParser struct {
 	format string
 	regexp *regexp.Regexp
 }
 
+// NewAlbLogParser create AlbLogParser instance
+// set regexp refs below url
+// http://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/application/load-balancer-access-logs.html
 func NewAlbLogParser() *AlbLogParser {
 	a := new(AlbLogParser)
 	a.format = "2006-01-02T15:04:05.000000Z"
@@ -23,6 +27,7 @@ func NewAlbLogParser() *AlbLogParser {
 	return a
 }
 
+// Parse log line
 func (a *AlbLogParser) Parse(line string) (*Entry, error) {
 	matches := a.regexp.FindStringSubmatch(line)
 	if len(matches) < 3 {
