@@ -69,8 +69,8 @@ func (r *Repeater) collectStats() {
 				laststatsTime = statsTime
 			}
 		}
+		time.Sleep(10 * time.Microsecond)
 	}
-	time.Sleep(10 * time.Microsecond)
 }
 
 func (r *Repeater) request(isDryrun bool) {
