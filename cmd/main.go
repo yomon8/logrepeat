@@ -128,6 +128,6 @@ func main() {
 	}
 
 	// start repeater
-	repeater := reperter.NewRepearter(&readreqs)
+	repeater := reperter.NewRepeater(&readreqs)
 	repeater.Run(concurrency, isDryrun)
 }

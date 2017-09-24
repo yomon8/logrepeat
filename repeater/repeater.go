@@ -13,15 +13,16 @@ import (
 )
 
 const (
-	REQUEST_BUFFER_SIZE = 1000
-	RESULT_BUFFER_SIZE  = 1000
-	LOG_INTERVAL_SEC    = 3
+	requestsBufferSize = 1000
+	resultBufferSize   = 1000
+	logIntervalSec     = 3
 )
 
 var (
-	resultBuffer chan *Result = make(chan *Result, RESULT_BUFFER_SIZE)
+	resultBuffer chan *Result = make(chan *Result, resultBufferSize)
 )
 
+// Repeater run repeat request generated from original requests
 type Repeater struct {
 	requests *request.Requests
 	wg       *sync.WaitGroup
@@ -31,11 +32,12 @@ type Repeater struct {
 	total    int
 }
 
-func NewRepearter(requests *request.Requests) *Repeater {
+// NewRepeater create Repeater instanse
+func NewRepeater(requests *request.Requests) *Repeater {
 	r := new(Repeater)
 	r.requests = requests
 	r.wg = new(sync.WaitGroup)
-	r.buffer = make(chan *request.Request, REQUEST_BUFFER_SIZE)
+	r.buffer = make(chan *request.Request, requestsBufferSize)
 	r.quit = make(chan bool)
 	r.total = requests.Len()
 	return r
@@ -53,7 +55,7 @@ func (r *Repeater) collectStats() {
 			results = append(results, result)
 		default:
 			statsTime = time.Now().Unix()
-			if statsTime-laststatsTime > LOG_INTERVAL_SEC && len(results) > 0 {
+			if statsTime-laststatsTime > logIntervalSec && len(results) > 0 {
 				r.count += len(results)
 				progress := float32(r.count) / float32(r.total) * 100
 				sort.Sort(results)
@@ -113,6 +115,7 @@ func (r *Repeater) request(isDryrun bool) {
 	r.wg.Done()
 }
 
+// Run all repeat requests
 func (r *Repeater) Run(concurrency int, isDryrun bool) {
 	go printer.Get().Run()
 
