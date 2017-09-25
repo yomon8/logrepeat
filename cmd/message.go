@@ -42,7 +42,7 @@ func printStartMessage() {
 		port)
 	color.Green("Repeat Samples\t:")
 	for i, r := range readreqs[0:5] {
-		fmt.Printf("%s %s\n", color.GreenString(" %d:", i+1), r.URL)
+		fmt.Printf("%s %s\n", color.GreenString(" %d:", i+1), r.String())
 	}
 	fmt.Println("...and more")
 	fmt.Println()
