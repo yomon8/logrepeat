@@ -23,7 +23,7 @@ func NewRequest(host, port string, entry *parser.Entry) *Request {
 }
 
 func (r *Request) String() string {
-	return fmt.Sprintf("[%s][%s]%s", r.StringPlanTime(), r.Method, r.URL)
+	return fmt.Sprintf("[%s]%s", r.Method, r.URL)
 }
 
 var datetimePrintFormat = "2006-01-02 15:04:05MST"
