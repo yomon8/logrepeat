@@ -17,8 +17,10 @@ type LogParser interface {
 
 // Entry is created from parsed and used by repeater
 type Entry struct {
-	// Method is url method ex. http,https...
+	// Method is url method ex. GET,POST...
 	Method string
+	// Protocol is protocol of request ex. http,https...
+	Protocol string
 	// DateTime is at first originl request time, repeater update it as repeat request timing
 	DateTime time.Time
 	// Path is url path

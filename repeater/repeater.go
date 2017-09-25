@@ -94,7 +94,7 @@ func (r *Repeater) request(isDryrun bool) {
 					responseTime = time.Duration(0)
 				} else {
 					client := &http.Client{Timeout: time.Duration(20) * time.Second}
-					httpreq, err := http.NewRequest("GET", req.URL, nil)
+					httpreq, err := http.NewRequest(req.Method, req.URL, nil)
 					if err != nil {
 						code = 1000
 						responseTime = time.Duration(0)

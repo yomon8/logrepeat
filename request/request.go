@@ -9,19 +9,21 @@ import (
 
 type Request struct {
 	URL        string
+	Method     string
 	OriginTime time.Time
 	RepeatTime time.Time
 }
 
 func NewRequest(host, port string, entry *parser.Entry) *Request {
 	r := new(Request)
-	r.URL = fmt.Sprintf("%s://%s:%s/%s", entry.Method, host, port, entry.Path)
+	r.Method = entry.Method
+	r.URL = fmt.Sprintf("%s://%s:%s/%s", entry.Protocol, host, port, entry.Path)
 	r.OriginTime = entry.DateTime
 	return r
 }
 
 func (r *Request) String() string {
-	return fmt.Sprintf("%s\t%s\t%s", r.OriginTime, r.RepeatTime, r.URL)
+	return fmt.Sprintf("[%s][%s]%s", r.StringPlanTime(), r.Method, r.URL)
 }
 
 var datetimePrintFormat = "2006-01-02 15:04:05MST"
