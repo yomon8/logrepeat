@@ -15,8 +15,6 @@ import (
 )
 
 const (
-	version = "0"
-
 	// default values
 	defaultSampleCount  = 5
 	defaultHost         = "localhost"
@@ -26,6 +24,8 @@ const (
 )
 
 var (
+	version = "0"
+
 	// args
 	host         string
 	port         string
@@ -60,7 +60,7 @@ func parseArgs() {
 		os.Exit(-1)
 	}
 	if isVersion {
-		fmt.Println(version)
+		fmt.Println("version: ", version)
 		os.Exit(0)
 	}
 }
