@@ -15,8 +15,6 @@ import (
 )
 
 const (
-	version = "0"
-
 	// default values
 	defaultSampleCount  = 5
 	defaultHost         = "localhost"
@@ -27,15 +25,17 @@ const (
 
 var (
 	// args
-	host         string
-	port         string
-	file         string
-	samplecount  int
-	concurrency  int
-	afterSeconds int
-	isDryrun     bool
-	isHelp       bool
-	isVersion    bool
+	host              string
+	port              string
+	file              string
+	samplecount       int
+	concurrency       int
+	afterSeconds      int
+	ignoreRequestTime bool
+	isForceMode       bool
+	isDryrun          bool
+	isHelp            bool
+	isVersion         bool
 
 	readreqs     request.Requests
 	ignoredLine  int
@@ -51,6 +51,8 @@ func parseArgs() {
 	flag.IntVar(&samplecount, "s", defaultSampleCount, "A number of request samples at repeat plan")
 	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
 	flag.IntVar(&afterSeconds, "after-seconds", defaultAfterSeconds, "Repeat start after seconds")
+	flag.BoolVar(&ignoreRequestTime, "ignore-req-time", false, "Ignore request time, send request in order of rows.")
+	flag.BoolVar(&isForceMode, "force", false, "Force mode,Show no prompt")
 	flag.BoolVar(&isDryrun, "dryrun", false, "dryrun")
 	flag.BoolVar(&isHelp, "help", false, "Show help message")
 	flag.BoolVar(&isVersion, "v", false, "Show version info")
@@ -60,7 +62,7 @@ func parseArgs() {
 		os.Exit(-1)
 	}
 	if isVersion {
-		fmt.Println(version)
+		fmt.Println("version:", version)
 		os.Exit(0)
 	}
 }
@@ -113,21 +115,28 @@ func main() {
 	difftime := time.Now().Add(time.Duration(afterSeconds) * time.Second).Sub(oldest.OriginTime)
 	readreqs.UpdateRepeatTime(difftime)
 
-	// print repeat plan
-	printStartMessage()
-
-	// wait for user prompt
-	var key string
-	for {
-		fmt.Print(color.MagentaString("Enter [start] and press Enter key>"))
-		fmt.Scanf("%s", &key)
-		if key == "start" {
-			fmt.Println("Start at:", oldest.StringPlanTime())
-			break
+	if !isForceMode {
+		// print repeat plan
+		printStartMessage()
+		// wait for user prompt
+		var key string
+		var ok bool
+		for !ok {
+			fmt.Print(color.MagentaString("Start/Cancel>"))
+			fmt.Scanf("%s", &key)
+			switch key {
+			case "S", "s", "Start", "start":
+				ok = true
+			case "C", "c", "Cancel", "cancel":
+				fmt.Println("canceled.")
+				os.Exit(1)
+			default:
+				continue
+			}
 		}
 	}
 
 	// start repeater
 	repeater := reperter.NewRepeater(&readreqs)
-	repeater.Run(concurrency, isDryrun)
+	repeater.Run(concurrency, isDryrun, ignoreRequestTime)
 }
