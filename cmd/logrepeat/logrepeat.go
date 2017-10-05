@@ -85,7 +85,7 @@ func main() {
 
 	// parse log
 	readreqs = make([]*request.Request, 0)
-	p := parser.NewAlbLogParser()
+	p := parser.NewALBLogParser()
 	for i := 0; ; i++ {
 		if sc.Scan() {
 			s := sc.Text()
