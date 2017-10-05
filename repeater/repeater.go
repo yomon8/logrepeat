@@ -34,13 +34,13 @@ type Repeater struct {
 
 // NewRepeater create Repeater instanse
 func NewRepeater(requests *request.Requests) *Repeater {
-	r := new(Repeater)
-	r.requests = requests
-	r.wg = new(sync.WaitGroup)
-	r.buffer = make(chan *request.Request, requestsBufferSize)
-	r.quit = make(chan bool)
-	r.total = requests.Len()
-	return r
+	return &Repeater{
+		requests: requests,
+		wg:       new(sync.WaitGroup),
+		buffer:   make(chan *request.Request, requestsBufferSize),
+		quit:     make(chan bool),
+		total:    requests.Len(),
+	}
 }
 
 func (r *Repeater) collectStats() {
