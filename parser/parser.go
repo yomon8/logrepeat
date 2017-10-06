@@ -7,7 +7,8 @@ import (
 
 var (
 	// ErrIgnored should be set, If parsed line should be ignored.
-	ErrIgnored = errors.New("line ignored")
+	ErrIgnored   = errors.New("line ignored")
+	ErrNoSupport = errors.New("not supported")
 )
 
 // LogParser is parser of original log file.

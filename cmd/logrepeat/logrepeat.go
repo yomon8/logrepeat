@@ -37,11 +37,12 @@ var (
 	isHelp            bool
 	isVersion         bool
 
-	readreqs     request.Requests
-	ignoredLine  int
-	parseErrLine int
-	newest       *request.Request
-	oldest       *request.Request
+	readreqs        request.Requests
+	ignoredLine     int
+	nonSuportedLine int
+	parseErrLine    int
+	newest          *request.Request
+	oldest          *request.Request
 )
 
 func parseArgs() {
@@ -93,6 +94,9 @@ func main() {
 			switch {
 			case err == parser.ErrIgnored:
 				ignoredLine++
+				continue
+			case err == parser.ErrNoSupport:
+				nonSuportedLine++
 				continue
 			case err != nil:
 				parseErrLine++

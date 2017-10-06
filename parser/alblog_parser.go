@@ -33,6 +33,13 @@ func (a *ALBLogParser) Parse(line string) (*Entry, error) {
 	if len(matches) < 4 {
 		return nil, errors.New("parse error")
 	}
+
+	// ALBLog Parser only support GET requests
+	prot := matches[3]
+	if prot != "GET" {
+		return nil, ErrNoSupport
+	}
+
 	dt, err := time.Parse(a.format, matches[1])
 	if err != nil {
 		return nil, errors.New("time parse error")
