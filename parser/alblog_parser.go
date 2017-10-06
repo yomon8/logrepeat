@@ -35,8 +35,8 @@ func (a *ALBLogParser) Parse(line string) (*Entry, error) {
 	}
 
 	// ALBLog Parser only support GET requests
-	prot := matches[3]
-	if prot != "GET" {
+	method := matches[2]
+	if method == "POST" {
 		return nil, ErrNoSupport
 	}
 
