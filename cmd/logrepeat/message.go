@@ -15,12 +15,16 @@ func printStartMessage() {
 		newest.StringOriginTime())
 
 	fmt.Printf("%-20s\t: %-10d reqs\n",
-		color.BlueString("REQUEST COUNT"),
+		color.BlueString("REQUESTS"),
 		len(readreqs))
 
 	fmt.Printf("%-20s\t: %-10d reqs\n",
-		color.BlueString("IGNORED COUNT"),
+		color.BlueString("IGNORED"),
 		ignoredLine)
+
+	fmt.Printf("%-20s\t: %-10d reqs\n",
+		color.BlueString("NON SUPPORTED"),
+		nonSuportedLine)
 
 	fmt.Printf("%-20s\t: %-10d reqs\n",
 		color.BlueString("PARSE ERROR"),

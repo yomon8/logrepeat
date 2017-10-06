@@ -1,4 +1,5 @@
 BIN      := logrepeat
+OSARCH   := "darwin/amd64 linux/amd64 windows/amd64"
 VERSION  := $(shell git describe --tags)
 
 all: build
@@ -16,12 +17,14 @@ lint: deps
 	go vet ./...
 	golint -set_exit_status ./...
 
-crossbuild:
+package:
 	rm -fR ./pkg && mkdir ./pkg ;\
 		gox \
+		-osarch $(OSARCH) \
 		-output "./pkg/{{.OS}}_{{.Arch}}/{{.Dir}}" \
 		-ldflags "-X main.version=$(VERSION)" \
-		./cmd/...
+		./cmd/...;\
+	    for d in $$(ls ./pkg);do zip ./pkg/$${d}.zip ./pkg/$${d}/*;done
 
 build:
 	go build -o $(BIN) -ldflags "-X main.version=$(VERSION)" ./cmd/...

@@ -26,8 +26,9 @@ func Get() *Printer {
 }
 
 func Close() {
-	instance.wg.Wait()
 	close(instance.Spool)
+	instance.wg.Wait()
+	fmt.Println("printer closed ..")
 }
 
 func (p *Printer) Run() {

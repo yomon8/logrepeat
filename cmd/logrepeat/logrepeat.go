@@ -24,24 +24,25 @@ const (
 )
 
 var (
-	version = "0"
-
 	// args
-	host         string
-	port         string
-	file         string
-	samplecount  int
-	concurrency  int
-	afterSeconds int
-	isDryrun     bool
-	isHelp       bool
-	isVersion    bool
+	host              string
+	port              string
+	file              string
+	samplecount       int
+	concurrency       int
+	afterSeconds      int
+	ignoreRequestTime bool
+	isForceMode       bool
+	isDryrun          bool
+	isHelp            bool
+	isVersion         bool
 
-	readreqs     request.Requests
-	ignoredLine  int
-	parseErrLine int
-	newest       *request.Request
-	oldest       *request.Request
+	readreqs        request.Requests
+	ignoredLine     int
+	nonSuportedLine int
+	parseErrLine    int
+	newest          *request.Request
+	oldest          *request.Request
 )
 
 func parseArgs() {
@@ -51,6 +52,8 @@ func parseArgs() {
 	flag.IntVar(&samplecount, "s", defaultSampleCount, "A number of request samples at repeat plan")
 	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
 	flag.IntVar(&afterSeconds, "after-seconds", defaultAfterSeconds, "Repeat start after seconds")
+	flag.BoolVar(&ignoreRequestTime, "ignore-req-time", false, "Ignore request time, send request in order of rows.")
+	flag.BoolVar(&isForceMode, "force", false, "Force mode,Show no prompt")
 	flag.BoolVar(&isDryrun, "dryrun", false, "dryrun")
 	flag.BoolVar(&isHelp, "help", false, "Show help message")
 	flag.BoolVar(&isVersion, "v", false, "Show version info")
@@ -83,7 +86,7 @@ func main() {
 
 	// parse log
 	readreqs = make([]*request.Request, 0)
-	p := parser.NewAlbLogParser()
+	p := parser.NewALBLogParser()
 	for i := 0; ; i++ {
 		if sc.Scan() {
 			s := sc.Text()
@@ -91,6 +94,9 @@ func main() {
 			switch {
 			case err == parser.ErrIgnored:
 				ignoredLine++
+				continue
+			case err == parser.ErrNoSupport:
+				nonSuportedLine++
 				continue
 			case err != nil:
 				parseErrLine++
@@ -113,21 +119,28 @@ func main() {
 	difftime := time.Now().Add(time.Duration(afterSeconds) * time.Second).Sub(oldest.OriginTime)
 	readreqs.UpdateRepeatTime(difftime)
 
-	// print repeat plan
-	printStartMessage()
-
-	// wait for user prompt
-	var key string
-	for {
-		fmt.Print(color.MagentaString("Enter [start] and press Enter key>"))
-		fmt.Scanf("%s", &key)
-		if key == "start" {
-			fmt.Println("Start at:", oldest.StringPlanTime())
-			break
+	if !isForceMode {
+		// print repeat plan
+		printStartMessage()
+		// wait for user prompt
+		var key string
+		var ok bool
+		for !ok {
+			fmt.Print(color.MagentaString("Start/Cancel>"))
+			fmt.Scanf("%s", &key)
+			switch key {
+			case "S", "s", "Start", "start":
+				ok = true
+			case "C", "c", "Cancel", "cancel":
+				fmt.Println("canceled.")
+				os.Exit(1)
+			default:
+				continue
+			}
 		}
 	}
 
 	// start repeater
 	repeater := reperter.NewRepeater(&readreqs)
-	repeater.Run(concurrency, isDryrun)
+	repeater.Run(concurrency, isDryrun, ignoreRequestTime)
 }

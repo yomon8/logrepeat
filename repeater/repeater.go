@@ -24,57 +24,64 @@ var (
 
 // Repeater run repeat request generated from original requests
 type Repeater struct {
-	requests *request.Requests
-	wg       *sync.WaitGroup
-	buffer   chan *request.Request
-	quit     chan bool
-	count    int
-	total    int
+	requests       *request.Requests
+	wg             *sync.WaitGroup
+	wgCollectStats *sync.WaitGroup
+	buffer         chan *request.Request
+	quit           bool
+	count          int
+	total          int
 }
 
 // NewRepeater create Repeater instanse
 func NewRepeater(requests *request.Requests) *Repeater {
-	r := new(Repeater)
-	r.requests = requests
-	r.wg = new(sync.WaitGroup)
-	r.buffer = make(chan *request.Request, requestsBufferSize)
-	r.quit = make(chan bool)
-	r.total = requests.Len()
-	return r
+	return &Repeater{
+		requests:       requests,
+		wg:             new(sync.WaitGroup),
+		buffer:         make(chan *request.Request, requestsBufferSize),
+		total:          requests.Len(),
+		wgCollectStats: new(sync.WaitGroup),
+	}
 }
 
 func (r *Repeater) collectStats() {
 	var statsTime, laststatsTime int64
 	var results Results = make([]*Result, 0)
-	for {
-		select {
-		case <-r.quit:
-			printer.Get().Spool <- fmt.Sprint("analyzer stopped ...")
-			return
-		case result := <-resultBuffer:
-			results = append(results, result)
-		default:
-			statsTime = time.Now().Unix()
-			if statsTime-laststatsTime > logIntervalSec && len(results) > 0 {
-				r.count += len(results)
-				progress := float32(r.count) / float32(r.total) * 100
-				sort.Sort(results)
-				printer.Get().Spool <- fmt.Sprintf("%s - %s  %s  (%.1f%%Done)",
-					results[0].requestTimeString(),
-					results[len(results)-1].requestTimeString(),
-					results.GetStatsString(),
-					progress)
+	var printResult func() = func() {
+		r.count += len(results)
+		progress := float32(r.count) / float32(r.total) * 100
+		sort.Sort(results)
+		printer.Get().Spool <- fmt.Sprintf("%s - %s  %s  (%.1f%%Done)",
+			results[0].requestTimeString(),
+			results[len(results)-1].requestTimeString(),
+			results.GetStatsString(),
+			progress)
+		results = make([]*Result, 0)
+		laststatsTime = statsTime
+	}
 
-				results = make([]*Result, 0)
-				laststatsTime = statsTime
+	r.wgCollectStats.Add(1)
+	for {
+		result, more := <-resultBuffer
+		if !more {
+			if len(results) > 0 {
+				printResult()
 			}
+			printer.Get().Spool <- fmt.Sprint("analyzer stopped ...")
+			printer.Close()
+			r.wgCollectStats.Done()
+			return
+		}
+		results = append(results, result)
+		statsTime = time.Now().Unix()
+		if statsTime-laststatsTime > logIntervalSec && len(results) > 0 {
+			printResult()
 		}
 		time.Sleep(10 * time.Microsecond)
 	}
 }
 
-func (r *Repeater) request(isDryrun bool) {
-	r.wg.Add(1)
+func (r *Repeater) runRequestWorker(isDryrun bool, ignoreReqTime bool) {
 	for {
 		req, more := <-r.buffer
 		if !more {
@@ -85,53 +92,57 @@ func (r *Repeater) request(isDryrun bool) {
 		var responseTime time.Duration
 		for {
 			repeatTime := time.Now()
-			if repeatTime.Sub(req.RepeatTime) <= 0 {
-				time.Sleep(10 * time.Microsecond)
-				continue
-			} else {
-				if isDryrun {
-					code = 999
-					responseTime = time.Duration(0)
-				} else {
-					client := &http.Client{Timeout: time.Duration(20) * time.Second}
-					httpreq, err := http.NewRequest(req.Method, req.URL, nil)
-					if err != nil {
-						code = 1000
-						responseTime = time.Duration(0)
-					}
-					start := time.Now()
-					if res, err := client.Do(httpreq); err != nil {
-						code = 1001
-					} else {
-						code = res.StatusCode
-					}
-					responseTime = time.Now().Sub(start)
+
+			if !ignoreReqTime {
+				if repeatTime.Sub(req.RepeatTime) <= 0 {
+					//wait for repeat time
+					time.Sleep(10 * time.Microsecond)
+					continue
 				}
-				resultBuffer <- newResult(repeatTime, code, responseTime)
-				break
 			}
+
+			if isDryrun {
+				code = 999
+				responseTime = time.Duration(0)
+			} else {
+				client := &http.Client{Timeout: time.Duration(20) * time.Second}
+				httpreq, err := http.NewRequest(req.Method, req.URL, nil)
+				if err != nil {
+					code = 1000
+					responseTime = time.Duration(0)
+				}
+				start := time.Now()
+				if res, err := client.Do(httpreq); err != nil {
+					code = 1001
+				} else {
+					code = res.StatusCode
+				}
+				responseTime = time.Now().Sub(start)
+			}
+			resultBuffer <- newResult(repeatTime, code, responseTime)
+			break
 		}
 	}
 	r.wg.Done()
 }
 
 // Run all repeat requests
-func (r *Repeater) Run(concurrency int, isDryrun bool) {
+func (r *Repeater) Run(concurrency int, isDryrun bool, ignoreReqTime bool) {
 	go printer.Get().Run()
+	go r.collectStats()
 
 	for i := 0; concurrency > i; i++ {
-		go r.request(isDryrun)
+		r.wg.Add(1)
+		go r.runRequestWorker(isDryrun, ignoreReqTime)
 	}
-
-	go r.collectStats()
 
 	for _, req := range *r.requests {
 		r.buffer <- req
 	}
+
 	close(r.buffer)
 	r.wg.Wait()
 	close(resultBuffer)
-	r.quit <- true
-	printer.Close()
+	r.wgCollectStats.Wait()
 	color.Blue("Repeat Completed!")
 }

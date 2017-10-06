@@ -16,7 +16,7 @@ func TestAlbLogParser(t *testing.T) {
 		},
 	}
 
-	p := NewAlbLogParser()
+	p := NewALBLogParser()
 	for _, c := range cases {
 		entry, err := p.Parse(c.line)
 		if err != nil {
