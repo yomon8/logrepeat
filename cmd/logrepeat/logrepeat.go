@@ -40,8 +40,8 @@ var (
 	ignoredLine     int
 	nonSuportedLine int
 	parseErrLine    int
-	newest          *request.Request
-	oldest          *request.Request
+	newest          *request.RequestEntry
+	oldest          *request.RequestEntry
 )
 
 func parseArgs() {
@@ -87,7 +87,7 @@ func main() {
 	}
 
 	// parse log
-	readreqs = make([]*request.Request, 0)
+	readreqs = make([]*request.RequestEntry, 0)
 	p := parser.NewALBLogParser()
 	for i := 0; ; i++ {
 		if sc.Scan() {
@@ -104,7 +104,7 @@ func main() {
 				parseErrLine++
 				continue
 			}
-			req := request.NewRequest(host, port, entry)
+			req := request.NewRequestEntry(host, port, entry)
 			readreqs = append(readreqs, req)
 		} else {
 			break

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Requests []*Request
+type Requests []*RequestEntry
 
 func (reqs Requests) UpdateRepeatTime(differenceFromOriginalTime time.Duration) {
 	for _, request := range reqs {

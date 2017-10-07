@@ -27,7 +27,7 @@ type Repeater struct {
 	requests       *request.Requests
 	wg             *sync.WaitGroup
 	wgCollectStats *sync.WaitGroup
-	buffer         chan *request.Request
+	buffer         chan *request.RequestEntry
 	quit           bool
 	count          int
 	total          int
@@ -38,7 +38,7 @@ func NewRepeater(requests *request.Requests) *Repeater {
 	return &Repeater{
 		requests:       requests,
 		wg:             new(sync.WaitGroup),
-		buffer:         make(chan *request.Request, requestsBufferSize),
+		buffer:         make(chan *request.RequestEntry, requestsBufferSize),
 		total:          requests.Len(),
 		wgCollectStats: new(sync.WaitGroup),
 	}

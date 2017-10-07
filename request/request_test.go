@@ -22,13 +22,13 @@ var cases = []struct {
 }
 
 func TestPrintRequest(t *testing.T) {
-	var requests Requests = make([]*Request, 0)
+	var requests Requests = make([]*RequestEntry, 0)
 	for _, c := range cases {
 		entry := new(parser.Entry)
 		entry.Method = c.method
 		entry.DateTime = time.Now()
 		entry.Path = c.path
-		r := NewRequest(
+		r := NewRequestEntry(
 			c.host,
 			c.port,
 			entry)
