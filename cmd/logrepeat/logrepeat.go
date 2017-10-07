@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/yomon8/logrepeat/parser"
 	"github.com/yomon8/logrepeat/repeater"
 	"github.com/yomon8/logrepeat/request"
@@ -51,8 +50,8 @@ func parseArgs() {
 	flag.StringVar(&file, "f", "", "AWS ALB log file path")
 	flag.IntVar(&samplecount, "s", defaultSampleCount, "A number of request samples at repeat plan")
 	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
-	flag.IntVar(&afterSeconds, "after-seconds", defaultAfterSeconds, "Repeat start after seconds")
-	flag.BoolVar(&ignoreRequestTime, "ignore-req-time", false, "Ignore request time, send request in order of rows.")
+	flag.IntVar(&afterSeconds, "start-after-secs", defaultAfterSeconds, "Repeat start after seconds")
+	flag.BoolVar(&ignoreRequestTime, "ignore-timestamp", false, "Ignore request timestamp, simply send request in order of rows.")
 	flag.BoolVar(&isForceMode, "force", false, "Force mode,Show no prompt")
 	flag.BoolVar(&isDryrun, "dryrun", false, "dryrun")
 	flag.BoolVar(&isHelp, "help", false, "Show help message")
@@ -66,6 +65,9 @@ func parseArgs() {
 		fmt.Println("version: ", version)
 		os.Exit(0)
 	}
+}
+
+func validateArgs() {
 }
 
 func main() {
@@ -119,25 +121,10 @@ func main() {
 	difftime := time.Now().Add(time.Duration(afterSeconds) * time.Second).Sub(oldest.OriginTime)
 	readreqs.UpdateRepeatTime(difftime)
 
+	// skip prompt in force mode
 	if !isForceMode {
-		// print repeat plan
 		printStartMessage()
-		// wait for user prompt
-		var key string
-		var ok bool
-		for !ok {
-			fmt.Print(color.MagentaString("Start/Cancel>"))
-			fmt.Scanf("%s", &key)
-			switch key {
-			case "S", "s", "Start", "start":
-				ok = true
-			case "C", "c", "Cancel", "cancel":
-				fmt.Println("canceled.")
-				os.Exit(1)
-			default:
-				continue
-			}
-		}
+		waitPrompt()
 	}
 
 	// start repeater

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/fatih/color"
 )
@@ -50,4 +51,22 @@ func printStartMessage() {
 	}
 	fmt.Println("...and more")
 	fmt.Println()
+}
+
+func waitPrompt() {
+	var key string
+	var ok bool
+	for !ok {
+		fmt.Print(color.MagentaString("Start/Cancel>"))
+		fmt.Scanf("%s", &key)
+		switch key {
+		case "S", "s", "Start", "start":
+			ok = true
+		case "C", "c", "Cancel", "cancel":
+			fmt.Println("canceled.")
+			os.Exit(1)
+		default:
+			continue
+		}
+	}
 }
