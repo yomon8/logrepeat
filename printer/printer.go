@@ -3,6 +3,7 @@ package printer
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 const (
@@ -12,6 +13,7 @@ const (
 type Printer struct {
 	Spool chan string
 	wg    *sync.WaitGroup
+	warm  bool
 }
 
 var instance *Printer
@@ -32,8 +34,16 @@ func Close() {
 }
 
 func (p *Printer) Run() {
+	go p.worker()
+	for !p.warm {
+		time.Sleep(time.Duration(1) * time.Second)
+	}
+}
+
+func (p *Printer) worker() {
 	p.wg.Add(1)
 	for {
+		p.warm = true
 		output, more := <-p.Spool
 		if !more {
 			break
