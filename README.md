@@ -16,10 +16,11 @@ $ logrepeat -h newtarget -p 8080 -f youralblogfile.log
 ```
 --- Requests Source ---
 REQUEST TIME	: 2017-09-09 09:55:00JST ~ 2017-09-09 10:55:00JST
-REQUEST COUNT	: 98111      reqs
-IGNORED COUNT	: 0          reqs
-PARSE ERROR	: 0          reqs
-DryRun     	: true
+REQUESTS    	: 98111      reqs
+IGNORED    	  : 0          reqs
+NON SUPPORTED	: 0          reqs
+PARSE ERROR	  : 0          reqs
+DryRun     	  : true
 
 --- Repeat Plan ---
 REPEAT TIME	: 2017-09-21 22:39:49JST ~ 2017-09-21 23:39:50JST
@@ -47,6 +48,13 @@ Start at: 2017-09-21 22:39:49JST
 ...
 ```
 
+## Advanced Usage
+
+Download ALB log with selecting time range, and repeat them to another target by one liner with aloget(https://github.com/yomon8/aloget).
+
+```
+$ logrepeat -h newtarget -p 8080 -f <(aloget -b <S3Bucket> -p <ALBAccessLogPrefix> -stdout -s yyyy-MM-ddTHH:mm:ss -e yyyy-MM-ddTHH:mm:ss)
+```
 
 
 
