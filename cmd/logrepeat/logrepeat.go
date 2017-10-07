@@ -17,7 +17,8 @@ const (
 	// default values
 	defaultSampleCount  = 5
 	defaultHost         = "localhost"
-	defaultPort         = "80"
+	defaultHttpPort     = "80"
+	defaultHttpsPort    = "443"
 	defaultConcurrency  = 10
 	defaultAfterSeconds = 5
 )
@@ -25,7 +26,8 @@ const (
 var (
 	// args
 	host              string
-	port              string
+	httpPort          string
+	httpsPort         string
 	file              string
 	samplecount       int
 	concurrency       int
@@ -46,7 +48,8 @@ var (
 
 func parseArgs() {
 	flag.StringVar(&host, "h", defaultHost, "Repert target hostname")
-	flag.StringVar(&port, "p", defaultPort, "Repert target port number")
+	flag.StringVar(&httpPort, "http-port", defaultHttpPort, "Repert target http port number")
+	flag.StringVar(&httpsPort, "https-port", defaultHttpsPort, "Repert target https port number")
 	flag.StringVar(&file, "f", "", "AWS ALB log file path")
 	flag.IntVar(&samplecount, "s", defaultSampleCount, "A number of request samples at repeat plan")
 	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
@@ -104,6 +107,18 @@ func main() {
 				parseErrLine++
 				continue
 			}
+
+			var port string
+			switch entry.Protocol {
+			case "http":
+				port = httpPort
+			case "https":
+				port = httpsPort
+			default:
+				nonSuportedLine++
+				continue
+			}
+
 			req := request.NewRequestEntry(host, port, entry)
 			readreqs = append(readreqs, req)
 		} else {

@@ -42,9 +42,13 @@ func printStartMessage() {
 		oldest.StringPlanTime(),
 		newest.StringPlanTime())
 	fmt.Printf("%-20s\t: %s:%s\n",
-		color.GreenString("REPEAT TARGET"),
+		color.GreenString("HTTP TARGET"),
 		host,
-		port)
+		httpPort)
+	fmt.Printf("%-20s\t: %s:%s\n",
+		color.GreenString("HTTPS TARGET"),
+		host,
+		httpsPort)
 	color.Green("Repeat Samples\t:")
 	for i, r := range readreqs[0:5] {
 		fmt.Printf("%s %s\n", color.GreenString(" %d:", i+1), r.String())

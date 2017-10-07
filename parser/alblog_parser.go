@@ -40,6 +40,11 @@ func (a *ALBLogParser) Parse(line string) (*Entry, error) {
 		return nil, ErrNoSupport
 	}
 
+	prot := matches[3]
+	if prot != "http" && prot != "https" {
+		return nil, ErrNoSupport
+	}
+
 	dt, err := time.Parse(a.format, matches[1])
 	if err != nil {
 		return nil, errors.New("time parse error")
@@ -47,7 +52,7 @@ func (a *ALBLogParser) Parse(line string) (*Entry, error) {
 	return &Entry{
 		DateTime: dt,
 		Method:   matches[2],
-		Protocol: matches[3],
+		Protocol: prot,
 		Path:     matches[4],
 	}, nil
 }
