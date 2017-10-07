@@ -128,7 +128,7 @@ func (r *Repeater) runRequestWorker(isDryrun bool, ignoreReqTime bool) {
 
 // Run all repeat requests
 func (r *Repeater) Run(concurrency int, isDryrun bool, ignoreReqTime bool) {
-	go printer.Get().Run()
+	printer.Get().Run()
 	go r.collectStats()
 
 	for i := 0; concurrency > i; i++ {
