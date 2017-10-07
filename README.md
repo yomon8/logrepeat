@@ -17,10 +17,10 @@ $ logrepeat -h newtarget -p 8080 -f youralblogfile.log
 --- Requests Source ---
 REQUEST TIME	: 2017-09-09 09:55:00JST ~ 2017-09-09 10:55:00JST
 REQUESTS    	: 98111      reqs
-IGNORED    	  : 0          reqs
+IGNORED    	: 0          reqs
 NON SUPPORTED	: 0          reqs
-PARSE ERROR	  : 0          reqs
-DryRun     	  : true
+PARSE ERROR	: 0          reqs
+DryRun     	: true
 
 --- Repeat Plan ---
 REPEAT TIME	: 2017-09-21 22:39:49JST ~ 2017-09-21 23:39:50JST
