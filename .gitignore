@@ -4,6 +4,8 @@
 !Makefile
 *.swp
 *.txt
+*.log
+.DS_Store
 pkg/
 
 # Binaries for programs and plugins
