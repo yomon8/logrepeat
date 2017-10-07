@@ -33,6 +33,7 @@ var (
 	concurrency       int
 	afterSeconds      int
 	ignoreRequestTime bool
+	forceHttp         bool
 	isForceMode       bool
 	isDryrun          bool
 	isHelp            bool
@@ -55,6 +56,7 @@ func parseArgs() {
 	flag.IntVar(&concurrency, "c", defaultConcurrency, "Concurrency of requesters")
 	flag.IntVar(&afterSeconds, "start-after-secs", defaultAfterSeconds, "Repeat start after seconds")
 	flag.BoolVar(&ignoreRequestTime, "ignore-timestamp", false, "Ignore request timestamp, simply send request in order of rows.")
+	flag.BoolVar(&forceHttp, "force-http", false, "Send all of requests as http(not https)")
 	flag.BoolVar(&isForceMode, "force", false, "Force mode,Show no prompt")
 	flag.BoolVar(&isDryrun, "dryrun", false, "dryrun")
 	flag.BoolVar(&isHelp, "help", false, "Show help message")
@@ -109,10 +111,13 @@ func main() {
 			}
 
 			var port string
-			switch entry.Protocol {
-			case "http":
+			switch {
+			case entry.Protocol == "http":
 				port = httpPort
-			case "https":
+			case entry.Protocol == "https" && forceHttp:
+				entry.Protocol = "http"
+				port = httpPort
+			case entry.Protocol == "https" && !forceHttp:
 				port = httpsPort
 			default:
 				nonSuportedLine++
