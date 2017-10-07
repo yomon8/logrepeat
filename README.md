@@ -56,5 +56,15 @@ Download ALB log with selecting time range, and repeat them to another target by
 $ logrepeat -h newtarget -p 8080 -f <(aloget -b <S3Bucket> -p <ALBAccessLogPrefix> -stdout -s yyyy-MM-ddTHH:mm:ss -e yyyy-MM-ddTHH:mm:ss)
 ```
 
+## Install
 
+
+```
+go get github.com/yomon8/logrepeat/...
+go install github.com/yomon8/logrepeat/...
+```
+
+or 
+ 
+Download from [released file](https://github.com/yomon8/logrepeat/releases)
 
